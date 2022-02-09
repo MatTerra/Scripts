@@ -1,0 +1,106 @@
+if [ "$1" == "image" ]
+then
+  docker build -t "$3" -f "$2" .
+  docker login
+  docker push "$3"
+elif [ "$1" == "vpn" ]
+then
+  if [ "$2" == kill ]
+  then
+	  if [ -f "$HOME/.scripts/vpnpid" ]
+	  then
+	    sudo kill $(cat $HOME/.scripts/vpnpid)
+      rm $HOME/.scripts/vpnpid
+    fi
+  else
+	  if [ -f "$HOME/.scripts/vpnpid" ]
+	  then
+      echo "There was a vpn connection open! Closing it before opening another"
+      sleep 1
+	    sudo kill $(cat $HOME/.scripts/vpnpid)
+    fi
+    
+    if [ "$2" == esc ]
+	  then
+      sudo openvpn $HOME/.scripts/mateust.ovpn &
+      echo $! > $HOME/.scripts/vpnpid
+    elif [ "$2" == home ]
+	  then
+      sudo openvpn $HOME/.scripts/mateust.ovpn
+      echo $! > $HOME/.scripts/vpnpid
+    else
+      echo "Você deve escolher 'esc' ou 'home'!"
+    fi
+  fi
+elif [ "$1" == "encrypt" ]
+then
+	options=$(getopt -o d:i:o: -- "$@")
+	[ $? -eq 0 ] || { 
+		echo "Você deve informar ao menos o destinatário com a opção -d e o arquivo a cifrar com -i."
+		return 1
+	}
+	eval set -- "$options"
+	while true; do
+		case "$1" in
+		-d)
+			shift
+			DEST="$1"
+			echo "Mensagem para $DEST@novaweb.mobi"
+			;;
+		-i)
+			shift
+			INFILE="$1"
+			echo "Arquivo é $INFILE"
+			;;
+		-o)
+			shift
+			OUTFILE="$1"
+			;;
+		--)
+			shift
+			break
+			;;
+		esac
+		shift
+	done
+	[[ ! -z "$OUTFILE" ]] || OUTFILE="$INFILE.enc"
+	openssl rand -base64 -out key.bin 128 && echo "Generated Symetric key" || "Symetric key gen failed"
+	openssl enc -aes-256-cbc -e -pbkdf2 -salt -in "$INFILE" -out $OUTFILE -pass file:./key.bin && echo "Encrypted file" || "Encrypting failed"
+	openssl rsautl -encrypt -pubin -inkey  <(ssh-keygen -e -m PKCS8 -f "$HOME/.scripts/$DEST@novaweb.mobi_rsa.pub") -in key.bin -out key.bin.enc && echo "Encrypted key" || "Encrypting key failed"
+	rm key.bin && echo "Erased plaintext key file" || "Failed removing plaintext key"
+	unset INFILE
+	unset OUTFILE
+	unset DEST
+elif [ "$1" == "decrypt" ]
+then
+	options=$(getopt -o i:o: -- "$@")
+	[ $? -eq 0 ] || { 
+		echo "Você deve informar ao menos o arquivo a decifrar com -i."
+		return 1
+	}
+	eval set -- "$options"
+	while true; do
+		case "$1" in
+		-i)
+			shift
+			INFILE="$1"
+			echo "Arquivo é $INFILE"
+			;;
+		-o)
+			shift
+			OUTFILE="$1"
+			;;
+		--)
+			shift
+			break
+			;;
+		esac
+		shift
+	done
+	[[ ! -z "$OUTFILE" ]] || OUTFILE="${INFILE::-4}"
+	openssl rsautl -decrypt -inkey $HOME/.ssh/id_rsa -in key.bin.enc -out key.bin && echo "Decrypted key" || echo "Failed decrypting key"
+	openssl enc -d -aes-256-cbc -pbkdf2 -in $INFILE -out $OUTFILE -pass file:./key.bin && echo "Decrypted file" || echo "Failed decrypting file"
+	rm $INFILE key.bin.enc key.bin && echo "Removed cryptographed file and key"
+	unset INFILE
+	unset OUTFILE
+fi

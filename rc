@@ -1,0 +1,26 @@
+export SCRIPTS="$HOME/.scripts"
+
+. /usr/share/bash-completion/bash_completion
+. /etc/bash_completion.d/*
+
+alias my=". $SCRIPTS/my"
+alias novaweb=". $SCRIPTS/novaweb"
+alias decode-secrets=". $SCRIPTS/decode-secrets"
+alias commit="git commit -a -m "
+. $SCRIPTS/mycomplete
+
+alias kube-namespace=". $SCRIPTS/kube-namespace"
+alias kns="kube-namespace"
+alias k="kubectl"
+alias kg="kubectl get"
+alias kd="kubectl describe"
+alias kap="kubectl apply -f"
+alias ka="kubectl get all"
+alias ke="kubectl edit"
+
+function new-branch {
+	echo "Creating branch $1"
+	git checkout -b $1 && git push -u origin $1
+}
+alias update='yay -Syu'
+
