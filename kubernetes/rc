@@ -1,0 +1,8 @@
+alias kube-namespace=". $SCRIPTS/kube-namespace"
+alias kns="kube-namespace"
+alias k="kubectl"
+alias kg="kubectl get"
+alias kd="kubectl describe"
+alias kap="kubectl apply -f"
+alias ka="kubectl get all"
+alias ke="kubectl edit"
