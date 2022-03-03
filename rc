@@ -14,6 +14,9 @@ function new-branch {
 	echo "Creating branch $1"
 	git checkout -b $1 && git push -u origin $1
 }
+function gh-clone {
+	git clone https://github.com/$1
+}
 alias update='yay -Syu'
 
 alias check-time="python $SCRIPTS/check-time.py"
