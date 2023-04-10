@@ -6,3 +6,4 @@ alias kd="kubectl describe"
 alias kap="kubectl apply -f"
 alias ka="kubectl get all"
 alias ke="kubectl edit"
+export KUBE_EDITOR=nano

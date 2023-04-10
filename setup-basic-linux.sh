@@ -75,6 +75,7 @@ if [[ -z $SCRIPTS ]]; then
   cd $HOME/.scripts
   echo 'source $SCRIPTS/rc' >> $HOME/.bashrc
   mv nanorc $HOME/.nanorc
+  cp starship/starship.toml $HOME/.config/starship.toml
   cd kubernetes
   chmod u+x install.sh
   ./install.sh

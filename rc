@@ -6,6 +6,7 @@ export SCRIPTS="$HOME/.scripts"
 alias my=". $SCRIPTS/my"
 alias novaweb=". $SCRIPTS/novaweb"
 alias decode-secrets=". $SCRIPTS/decode-secrets"
+alias list-secrets=". $SCRIPTS/list-secrets"
 alias commit="git commit -a -m "
 . $SCRIPTS/mycomplete
 
@@ -18,5 +19,3 @@ function gh-clone {
 	git clone https://github.com/$1
 }
 alias update='yay -Syu'
-
-alias check-time="python $SCRIPTS/check-time.py"
